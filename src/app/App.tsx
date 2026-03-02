@@ -339,7 +339,7 @@ export default function App() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1 }}
-            className="flex items-center gap-2 mb-10"
+            className="flex items-center gap-2 mb-6"
           >
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: CRIMSON }} />
             <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.68rem', letterSpacing: '0.2em', fontWeight: 600, textTransform: 'uppercase' }}>
@@ -352,7 +352,7 @@ export default function App() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(2.4rem, 6vw, 5rem)', fontWeight: 300, color: WHITE, lineHeight: 1.2, maxWidth: '780px', marginBottom: '2rem' }}
+            style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(2rem, 4.5vw, 3.8rem)', fontWeight: 300, color: WHITE, lineHeight: 1.2, maxWidth: '780px', marginBottom: '1.5rem' }}
           >
             I believe in the{' '}
             <span style={{ color: CRIMSON, fontWeight: 700 }}>BASICS</span>
@@ -366,7 +366,7 @@ export default function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.55 }}
-            style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.05rem', maxWidth: '440px', lineHeight: '1.85', marginBottom: '3.5rem' }}
+            style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', maxWidth: '440px', lineHeight: '1.8', marginBottom: '2.5rem' }}
           >
             Focused on structure and clarity. Building systems that scale through disciplined execution.
           </motion.p>
