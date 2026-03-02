@@ -201,26 +201,91 @@ function TimelineItem({ item, index }: { item: typeof timeline[0]; index: number
 function SkillBar({ skill, index }: { skill: typeof skills[0]; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const [count, setCount] = useState(0);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (!isInView) return;
+    let startTime: number;
+    let frame: number;
+    const animate = (t: number) => {
+      if (!startTime) startTime = t;
+      const progress = Math.min((t - startTime) / 1500, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+      setCount(Math.round(ease * skill.level));
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    const delay = setTimeout(() => { frame = requestAnimationFrame(animate); }, index * 100 + 200);
+    return () => { clearTimeout(delay); cancelAnimationFrame(frame); };
+  }, [isInView, skill.level, index]);
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, delay: index * 0.08 }}
+      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ transition: 'transform 0.35s cubic-bezier(0.22,1,0.36,1)', transform: hovered ? 'translateY(-4px)' : 'translateY(0)' }}
     >
-      <div className="flex justify-between mb-2 items-baseline">
-        <span style={{ color: BLACK, fontSize: '0.9rem', fontWeight: 500 }}>{skill.name}</span>
-        <span style={{ color: CRIMSON, fontSize: '0.75rem', fontWeight: 700 }}>{skill.level}%</span>
+      {/* Skill name */}
+      <div style={{ color: 'rgba(0,0,0,0.38)', fontSize: '0.58rem', letterSpacing: '0.24em', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.6rem' }}>
+        {skill.name}
       </div>
-      <div className="h-[2px] rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={isInView ? { width: `${skill.level}%` } : {}}
-          transition={{ duration: 1.4, delay: index * 0.08 + 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="h-full rounded-full"
-          style={{ backgroundColor: CRIMSON }}
-        />
+
+      {/* Giant animated number */}
+      <div className="flex items-end gap-1" style={{ marginBottom: '1.2rem', lineHeight: 1 }}>
+        <span style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(2.8rem, 5vw, 4.2rem)', fontWeight: 700, color: hovered ? BLACK : CRIMSON, lineHeight: 1, transition: 'color 0.35s' }}>
+          {count}
+        </span>
+        <span style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(1.1rem, 2vw, 1.6rem)', fontWeight: 400, color: hovered ? BLACK : CRIMSON, lineHeight: 1, marginBottom: '0.35em', transition: 'color 0.35s' }}>
+          %
+        </span>
+      </div>
+
+      {/* Thin bar + checkpoints */}
+      <div style={{ position: 'relative', paddingBottom: '1.4rem' }}>
+        {/* Rail */}
+        <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.1)', position: 'relative' }}>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={isInView ? { width: `${skill.level}%` } : {}}
+            transition={{ duration: 1.6, delay: index * 0.1 + 0.15, ease: [0.22, 1, 0.36, 1] }}
+            style={{ height: '1px', backgroundColor: hovered ? BLACK : CRIMSON, position: 'absolute', top: 0, left: 0, transition: 'background-color 0.35s' }}
+          />
+          {/* End cap dot */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ delay: index * 0.1 + 1.5 }}
+            style={{
+              position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+              width: '5px', height: '5px', borderRadius: '50%',
+              backgroundColor: hovered ? BLACK : CRIMSON,
+              left: `${skill.level}%`, marginLeft: '-2.5px',
+              transition: 'background-color 0.35s',
+            }}
+          />
+        </div>
+
+        {/* Checkpoint ticks + labels */}
+        {[{ pct: 33, label: 'Beginner' }, { pct: 66, label: 'Mid' }, { pct: 100, label: 'Advanced' }].map(({ pct, label }) => (
+          <motion.div
+            key={pct}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.4, delay: index * 0.1 + 1.2 }}
+            style={{ position: 'absolute', left: `${pct}%`, top: 0, transform: 'translateX(-50%)' }}
+          >
+            {/* Tick */}
+            <div style={{ width: '1px', height: '5px', backgroundColor: 'rgba(0,0,0,0.18)', margin: '0 auto' }} />
+            {/* Label */}
+            <div style={{ fontSize: '0.52rem', color: 'rgba(0,0,0,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: '3px', whiteSpace: 'nowrap', transform: 'translateX(-50%)', marginLeft: '50%' }}>
+              {label}
+            </div>
+          </motion.div>
+        ))}
       </div>
     </motion.div>
   );
@@ -528,7 +593,7 @@ export default function App() {
         style={{ backgroundColor: WHITE }}
       >
         <div className="absolute inset-0 pointer-events-none" style={dotGrid('rgba(0,0,0,0.03)')} />
-        <Watermark color="rgba(0,0,0,0.04)" size="clamp(8rem, 18vw, 18rem)" rotate={-4} align="right" vAlign="top">THINK</Watermark>
+        <Watermark color="rgba(0,0,0,0.09)" size="clamp(8rem, 18vw, 18rem)" rotate={-4} align="right" vAlign="top">THINK</Watermark>
 
         <div className="max-w-5xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
@@ -590,23 +655,43 @@ export default function App() {
         className="py-28 px-8 relative overflow-hidden"
         style={{ backgroundColor: WHITE, ...dotGrid('rgba(0,0,0,0.04)') }}
       >
-        <Watermark color="rgba(0,0,0,0.04)" size="clamp(8rem, 18vw, 18rem)" align="left" vAlign="bottom" rotate={3}>CRAFT</Watermark>
-        <div className="max-w-4xl mx-auto relative">
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
-            <SectionLabel>Core Competencies</SectionLabel>
-          </motion.div>
+        <Watermark color="rgba(0,0,0,0.09)" size="clamp(8rem, 18vw, 18rem)" align="left" vAlign="bottom" rotate={3}>CRAFT</Watermark>
+        <div className="max-w-6xl mx-auto relative">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+            <div>
+              <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
+                <SectionLabel>Core Competencies</SectionLabel>
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 300, color: BLACK, maxWidth: '480px', lineHeight: 1.25 }}
+              >
+                Technical depth across the stack.
+              </motion.h2>
+            </div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ color: 'rgba(0,0,0,0.35)', fontSize: '0.82rem', maxWidth: '240px', lineHeight: '1.8', textAlign: 'right' }}
+            >
+              Each number represents deliberate practice and real-world application.
+            </motion.p>
+          </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 300, color: BLACK, marginBottom: '3.5rem', maxWidth: '480px', lineHeight: 1.25 }}
-          >
-            Technical depth across the stack.
-          </motion.h2>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.08)', transformOrigin: 'left', marginBottom: '3.5rem' }}
+          />
 
-          <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-14">
             {skills.map((s, i) => <SkillBar key={i} skill={s} index={i} />)}
           </div>
         </div>
