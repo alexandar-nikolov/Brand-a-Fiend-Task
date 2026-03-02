@@ -55,15 +55,49 @@ const dotGrid = (color: string) => ({
   backgroundSize: '26px 26px',
 });
 
-/** Faint large letter stamped in the section background */
-function Watermark({ children, color }: { children: string; color: string }) {
+/** Animated section watermark with scroll-driven parallax */
+function Watermark({
+  children,
+  color,
+  size = 'clamp(10rem, 22vw, 22rem)',
+  align = 'right',
+  vAlign = 'top',
+  rotate = 0,
+}: {
+  children: string;
+  color: string;
+  size?: string;
+  align?: 'right' | 'left';
+  vAlign?: 'top' | 'bottom';
+  rotate?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], [-35, 35]);
+
   return (
-    <div
-      className="absolute right-4 top-2 pointer-events-none select-none overflow-hidden"
-      aria-hidden
-      style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(10rem, 22vw, 22rem)', fontWeight: 900, color, lineHeight: 0.85, letterSpacing: '-0.04em' }}
-    >
-      {children}
+    <div ref={ref} className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden>
+      <motion.div
+        style={{
+          y,
+          position: 'absolute',
+          [align]: '-2%',
+          [vAlign]: 0,
+          fontFamily: 'Roboto Slab, serif',
+          fontSize: size,
+          fontWeight: 900,
+          color,
+          lineHeight: 0.82,
+          letterSpacing: '-0.03em',
+          rotate,
+        }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 1.6, ease: 'easeOut' }}
+      >
+        {children}
+      </motion.div>
     </div>
   );
 }
@@ -317,12 +351,45 @@ export default function App() {
         {/* Crimson dot-grid texture */}
         <div className="absolute inset-0 pointer-events-none" style={dotGrid('rgba(177,14,60,0.07)')} />
 
-        {/* Giant "K" watermark */}
-        <div
-          className="absolute right-[-2%] top-[5%] pointer-events-none select-none"
-          aria-hidden
-          style={{ fontFamily: 'Roboto Slab, serif', fontSize: 'clamp(220px, 34vw, 480px)', fontWeight: 900, color: 'rgba(177,14,60,0.06)', lineHeight: 0.82 }}
-        />
+        {/* Giant "K" watermark — top right */}
+        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2, delay: 0.4, ease: 'easeOut' }}
+            style={{
+              position: 'absolute', right: '-4%', top: '-5%',
+              fontFamily: 'Roboto Slab, serif',
+              fontSize: 'clamp(240px, 38vw, 520px)',
+              fontWeight: 900, color: 'rgba(177,14,60,0.07)',
+              lineHeight: 0.82, letterSpacing: '-0.04em',
+            }}
+          >
+            K
+          </motion.div>
+        </div>
+
+        {/* "KALOYAN" name — bleeds in from bottom, huge */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none select-none overflow-hidden" aria-hidden>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 2, delay: 0.8, ease: 'easeOut' }}
+            style={{
+              fontFamily: 'Roboto Slab, serif',
+              fontSize: 'clamp(5rem, 16vw, 18rem)',
+              fontWeight: 900,
+              color: 'rgba(255,255,255,0.03)',
+              lineHeight: 0.75,
+              letterSpacing: '-0.02em',
+              whiteSpace: 'nowrap',
+              marginBottom: '-0.15em',
+              paddingLeft: '2rem',
+            }}
+          >
+            KALOYAN
+          </motion.div>
+        </div>
 
         {/* Crimson vertical rule */}
         <div className="absolute left-0 top-[25%] bottom-[25%] w-[3px]" style={{ background: `linear-gradient(to bottom, transparent, ${CRIMSON}, transparent)` }} />
@@ -461,6 +528,7 @@ export default function App() {
         style={{ backgroundColor: WHITE }}
       >
         <div className="absolute inset-0 pointer-events-none" style={dotGrid('rgba(0,0,0,0.03)')} />
+        <Watermark color="rgba(0,0,0,0.04)" size="clamp(8rem, 18vw, 18rem)" rotate={-4} align="right" vAlign="top">THINK</Watermark>
 
         <div className="max-w-5xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
@@ -489,7 +557,7 @@ export default function App() {
         className="py-28 px-8 relative overflow-hidden"
         style={{ backgroundColor: BLACK, ...dotGrid('rgba(177,14,60,0.06)') }}
       >
-        <Watermark color="rgba(255,255,255,0.025)">XP</Watermark>
+        <Watermark color="rgba(255,255,255,0.028)" size="clamp(8rem, 16vw, 16rem)" align="right" vAlign="top">DRIVEN</Watermark>
 
         <div className="max-w-4xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
@@ -522,6 +590,7 @@ export default function App() {
         className="py-28 px-8 relative overflow-hidden"
         style={{ backgroundColor: WHITE, ...dotGrid('rgba(0,0,0,0.04)') }}
       >
+        <Watermark color="rgba(0,0,0,0.04)" size="clamp(8rem, 18vw, 18rem)" align="left" vAlign="bottom" rotate={3}>CRAFT</Watermark>
         <div className="max-w-4xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
             <SectionLabel>Core Competencies</SectionLabel>
@@ -549,7 +618,7 @@ export default function App() {
         className="py-28 px-8 relative overflow-hidden"
         style={{ backgroundColor: CRIMSON, ...dotGrid('rgba(255,255,255,0.05)') }}
       >
-        <Watermark color="rgba(255,255,255,0.04)">W</Watermark>
+        <Watermark color="rgba(0,0,0,0.1)" size="clamp(9rem, 20vw, 20rem)" align="right" vAlign="top">MADE</Watermark>
 
         <div className="max-w-6xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
@@ -603,7 +672,7 @@ export default function App() {
         className="py-28 px-8 relative overflow-hidden"
         style={{ backgroundColor: BLACK, ...dotGrid('rgba(177,14,60,0.06)') }}
       >
-        <Watermark color="rgba(177,14,60,0.05)">C</Watermark>
+        <Watermark color="rgba(177,14,60,0.09)" size="clamp(9rem, 20vw, 20rem)" align="left" vAlign="bottom" rotate={-2}>HEY.</Watermark>
 
         <div className="max-w-4xl mx-auto relative">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }}>
