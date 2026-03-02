@@ -46,7 +46,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
           </button>
 
           <div className="p-12">
-            <div className="mb-2 uppercase tracking-widest" style={{ color: '#C8102E', fontSize: '0.75rem' }}>
+            <div className="mb-2 uppercase tracking-widest" style={{ color: '#B10E3C', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.18em' }}>
               {project.category}
             </div>
             <h2
@@ -80,7 +80,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </h3>
                 <div
                   className="w-12 h-[1px] mb-4"
-                  style={{ backgroundColor: '#C8102E' }}
+                  style={{ backgroundColor: '#B10E3C' }}
                 ></div>
                 <p style={{ color: '#6B6B6B', lineHeight: '1.8' }}>{project.challenge}</p>
               </div>
@@ -100,7 +100,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </h3>
                 <div
                   className="w-12 h-[1px] mb-4"
-                  style={{ backgroundColor: '#C8102E' }}
+                  style={{ backgroundColor: '#B10E3C' }}
                 ></div>
                 <p style={{ color: '#6B6B6B', lineHeight: '1.8' }}>{project.approach}</p>
               </div>
@@ -120,7 +120,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </h3>
                 <div
                   className="w-12 h-[1px] mb-4"
-                  style={{ backgroundColor: '#C8102E' }}
+                  style={{ backgroundColor: '#B10E3C' }}
                 ></div>
                 <p style={{ color: '#6B6B6B', lineHeight: '1.8' }}>{project.outcome}</p>
               </div>

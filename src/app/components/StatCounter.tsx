@@ -45,7 +45,7 @@ export function StatCounter({ end, duration = 2, suffix = '', label }: StatCount
           fontFamily: 'Roboto Slab, serif',
           fontSize: '3rem',
           fontWeight: 300,
-          color: '#C8102E',
+          color: '#B10E3C',
         }}
       >
         {count}
